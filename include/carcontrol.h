@@ -20,7 +20,7 @@ class CarControl
   public:
     CarControl();
     ~CarControl();
-    void driveCar(const vector<Point> &left, const vector<Point> &right, float velocity);
+    void driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, int sign);
 
   private:
     float errorAngle(const Point &dst);

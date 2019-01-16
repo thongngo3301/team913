@@ -1,4 +1,5 @@
 #include "detectlane.h"
+#include "math.h"
 
 int min(int a, int b)
 {
@@ -11,6 +12,8 @@ int DetectLane::BIRDVIEW_HEIGHT = 320;
 int DetectLane::VERTICAL = 0;
 int DetectLane::HORIZONTAL = 1;
 Point DetectLane::null = Point();
+
+Mat imgThresholded;
 
 DetectLane::DetectLane()
 {
@@ -41,25 +44,67 @@ vector<Point> DetectLane::getRightLane()
 void DetectLane::drawLanes(Mat &img)
 {
     // Mat lane = Mat::zeros(img.size(), CV_8UC3);
-    vector<Point> _leftLane = getLeftLane();
-    vector<Point> _rightLane = getRightLane();
 
-    for (int i = 1; i < _leftLane.size(); i++)
-    {
-        if (_leftLane[i] != null)
-        {
-            circle(img, _leftLane[i], 1, Scalar(0, 0, 255), 2, 8, 0);
-        }
-    }
+    imshow("threshold", imgThresholded);
 
-    for (int i = 1; i < _rightLane.size(); i++)
-    {
-        if (_rightLane[i] != null)
-        {
-            circle(img, _rightLane[i], 1, Scalar(255, 0, 0), 2, 8, 0);
-        }
-    }
+    // cvtColor(imgThresholded, dst, COLOR_HSV2BGR);
+
+    // for (int i = imgThresholded.rows - skyLine; i < imgThresholded.rows; i++) {
+    //     for (int j = 0; j < imgThresholded.cols; j++) {
+    //         // Vec3b pHSV = imgThresholded.at<Vec3b>(j, i);
+    //         circle(img, Point(j, i), 1, Scalar(0, 0, 255), 2, 8, 0);
+    //     }
+    // }
+
+    // Mat grayImg;
+    // cvtColor(img, grayImg, COLOR_BGR2GRAY);
+
+    // Ptr<LineSegmentDetector> det;
+    // det = createLineSegmentDetector();
+
+    // Mat lines;
+    // det->detect(grayImg, lines);
+
+    // det->drawSegments(imgThresholded, lines);
+
+    // const int KERNEL_SIZE = 31;
+    // Mat GBImg;
+    // GaussianBlur(grayImg, GBImg, Size(KERNEL_SIZE, KERNEL_SIZE), 0, 0);
+    // imshow("gbimg", GBImg);
+    // const double L_THRESHOLD = 50.0;
+    // const double H_THRESHOLD = 150.0;
+    // Mat edges;
+    // Canny(GBImg, edges, L_THRESHOLD, H_THRESHOLD);
+
+    // vector<Vec4i> lines;
+    // HoughLinesP(edges, lines, 1, CV_PI / 180, 1);
+    // for (size_t i = 0; i < lines.size(); i++)
+    // {
+    //     Vec4i l = lines[i];
+    //     line(img, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255), 3, CV_AA);
+    // }
+
     // imshow("lanes", img);
+    // imshow("threshold", imgThresholded);
+
+    // vector<Point> _leftLane = getLeftLane();
+    // vector<Point> _rightLane = getRightLane();
+
+    // for (int i = 1; i < _leftLane.size(); i++)
+    // {
+    //     if (_leftLane[i] != null)
+    //     {
+    //         circle(img, _leftLane[i], 1, Scalar(0, 0, 255), 2, 8, 0);
+    //     }
+    // }
+
+    // for (int i = 1; i < _rightLane.size(); i++)
+    // {
+    //     if (_rightLane[i] != null)
+    //     {
+    //         circle(img, _rightLane[i], 1, Scalar(255, 0, 0), 2, 8, 0);
+    //     }
+    // }
 }
 
 // Main processor
@@ -102,15 +147,17 @@ void DetectLane::update(Mat &src)
     //     }
     // }
 
-    // imshow("Lane Detect", lane);
-    // drawLanes(src);
+    imshow("view", src);
+    drawLanes(src);
 }
 
 Mat DetectLane::preProcess(const Mat &src)
 {
-    Mat imgThresholded, imgHSV, dst;
+    Mat imgHSV, dst;
 
     cvtColor(src, imgHSV, COLOR_BGR2HSV);
+
+    imshow("hsv", imgHSV);
 
     inRange(imgHSV, Scalar(minThreshold[0], minThreshold[1], minThreshold[2]),
             Scalar(maxThreshold[0], maxThreshold[1], maxThreshold[2]),
@@ -410,6 +457,8 @@ Mat DetectLane::birdViewTranform(const Mat &src)
 
     Mat dst(BIRDVIEW_HEIGHT, BIRDVIEW_WIDTH, CV_8UC3);
     warpPerspective(src, dst, M, dst.size(), INTER_LINEAR, BORDER_CONSTANT);
+
+    imshow("bird view", dst);
 
     return dst;
 }

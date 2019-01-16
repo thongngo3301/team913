@@ -15,7 +15,7 @@ float CarControl::errorAngle(const Point &dst)
     if (dst.x == carPos.x)
         return 0;
     if (dst.y == carPos.y)
-        return (dst.x < carPos.x ? -90 : 90);
+        return (dst.x < carPos.x ? -50 : 50);
     double pi = acos(-1.0);
     double dx = dst.x - carPos.x;
     double dy = carPos.y - dst.y;
@@ -24,27 +24,37 @@ float CarControl::errorAngle(const Point &dst)
     return atan(dx / dy) * 180 / pi;
 }
 
-void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right, float velocity)
+void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, int sign)
 {
+    const int LEFT = 1;
+    const int RIGHT = 2;
+
     int i = left.size() - 11;
     float error = preError;
-    while (left[i] == DetectLane::null && right[i] == DetectLane::null)
-    {
+    while (left[i] == DetectLane::null && right[i] == DetectLane::null) {
         i--;
         if (i < 0)
             return;
     }
-    if (left[i] != DetectLane::null && right[i] != DetectLane::null)
-    {
-        error = errorAngle((left[i] + right[i]) / 2);
-    }
-    else if (left[i] != DetectLane::null)
-    {
-        error = errorAngle(left[i] + Point(laneWidth / 2, 0));
-    }
-    else
-    {
-        error = errorAngle(right[i] - Point(laneWidth / 2, 0));
+    if (sign) {
+        switch (sign) {
+            case LEFT:
+                break;
+            case RIGHT:
+                velocity = 10;
+                error = 2;
+                break;
+        }
+    } else {
+        if (left[i] != DetectLane::null && right[i] != DetectLane::null) {
+            error = errorAngle((left[i] + right[i]) / 2);
+        }
+        else if (left[i] != DetectLane::null) {
+            error = errorAngle(left[i] + Point(laneWidth / 2, 0));
+        }
+        else if (right[i] != DetectLane::null) {
+            error = errorAngle(right[i] - Point(laneWidth / 2, 0));
+        }
     }
 
     std_msgs::Float32 angle;

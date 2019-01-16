@@ -2,7 +2,7 @@
 <package format="2">
   <name>team913</name>
   <version>0.0.0</version>
-  <description>The lane_detect package</description>
+  <description>The team913 package</description>
   <maintainer email="thongngo3301@gmail.com">thongnd98</maintainer>
   <license>BSD</license>
   <buildtool_depend>catkin</buildtool_depend>

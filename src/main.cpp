@@ -24,7 +24,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr &msg)
         cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
         waitKey(1);
         detect->update(cv_ptr->image);
-        car->driveCar(detect->getLeftLane(), detect->getRightLane(), 50);
+        car->driveCar(detect->getLeftLane(), detect->getRightLane(), 50, 0);
         // cv::imshow("View", cv_ptr->image);
     }
     catch (cv_bridge::Exception &e)
