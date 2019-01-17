@@ -49,7 +49,7 @@ void DetectLane::drawLanes(Mat &img)
 {
     // Mat lane = Mat::zeros(img.size(), CV_8UC3);
 
-    imshow("threshold", imgThresholded);
+    // imshow("threshold", imgThresholded);
 
     // cvtColor(imgThresholded, dst, COLOR_HSV2BGR);
 
@@ -152,7 +152,7 @@ void DetectLane::update(Mat &src)
     // }
 
     imshow("view", src);
-    drawLanes(src);
+    // drawLanes(src);
 }
 
 Mat DetectLane::preProcess(const Mat &src)
@@ -167,7 +167,17 @@ Mat DetectLane::preProcess(const Mat &src)
             Scalar(maxThreshold[0], maxThreshold[1], maxThreshold[2]),
             imgThresholded);
 
-    dst = birdViewTranform(imgThresholded);
+    Mat imgThresholdedShadow = laneInShadow(src);
+
+    Mat fullImgThresholded;
+
+    // bitwise_or to to get lanes in normal situation and shadow situation
+    bitwise_or(imgThresholded, imgThresholdedShadow, fullImgThresholded);
+
+    imshow("threshold", fullImgThresholded);
+
+    // dst = birdViewTranform(imgThresholded);
+    dst = birdViewTranform(fullImgThresholded);
 
     // imshow("Bird View", dst);
 
@@ -192,6 +202,8 @@ Mat DetectLane::laneInShadow(const Mat &src)
     inRange(shadowHSV, Scalar(minLaneInShadow[0], minLaneInShadow[1], minLaneInShadow[2]),
             Scalar(maxLaneInShadow[0], maxLaneInShadow[1], maxLaneInShadow[2]),
             laneShadow);
+
+    // imshow("lane shadow", laneShadow);
 
     return laneShadow;
 }

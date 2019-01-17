@@ -38,13 +38,13 @@ void imageCallback(const sensor_msgs::ImageConstPtr &msg)
         // }
         detect->update(cv_ptr->image);
         // ========== LAY ANH O DAY ==========
-        if (idx % 30 == 0) {
-            string name = "/home/thongnd/Desktop/images/3/" + to_string(idx/30) + ".jpg";
-            cout << name << endl;
-            // imwrite(name, cv_ptr->image);
-            imwrite(name, detect->getImgThresholded());
-        }
-        idx++;
+        // if (idx % 30 == 0) {
+        //     string name = "/home/thongnd/Desktop/images/3/" + to_string(idx/30) + ".jpg";
+        //     cout << name << endl;
+        //     // imwrite(name, cv_ptr->image);
+        //     imwrite(name, detect->getImgThresholded());
+        // }
+        // idx++;
         car->driveCar(detect->getLeftLane(), detect->getRightLane(), 40, 0);
         // cv::imshow("View", cv_ptr->image);
     }
