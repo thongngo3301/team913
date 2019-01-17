@@ -20,6 +20,7 @@ class DetectLane
     ~DetectLane();
 
     void update(Mat &src);
+    Mat getImgThresholded();
 
     vector<Point> getLeftLane();
     vector<Point> getRightLane();

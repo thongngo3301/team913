@@ -7,12 +7,16 @@
 #include "detectlane.h"
 #include "carcontrol.h"
 
+#include <string>
+#include <unistd.h>
+
 bool STREAM = true;
 
 VideoCapture capture("video.avi");
 DetectLane *detect;
 CarControl *car;
 int skipFrame = 1;
+int idx = 0;
 
 void imageCallback(const sensor_msgs::ImageConstPtr &msg)
 {
@@ -23,8 +27,25 @@ void imageCallback(const sensor_msgs::ImageConstPtr &msg)
     {
         cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
         waitKey(1);
+        // float currVelocity = car->getVelocity();
+        // if (currVelocity > 0) {
+        //     int delayTime = 1 / currVelocity * 1000000;
+        //     usleep(delayTime);
+        //     string name = "/home/thongnd/Desktop/images/" + to_string(idx) + ".jpg";
+        //     cout << name << endl;
+        //     imwrite(name, cv_ptr->image);
+        //     idx++;
+        // }
         detect->update(cv_ptr->image);
-        car->driveCar(detect->getLeftLane(), detect->getRightLane(), 50, 0);
+        // ========== LAY ANH O DAY ==========
+        if (idx % 30 == 0) {
+            string name = "/home/thongnd/Desktop/images/3/" + to_string(idx/30) + ".jpg";
+            cout << name << endl;
+            // imwrite(name, cv_ptr->image);
+            imwrite(name, detect->getImgThresholded());
+        }
+        idx++;
+        car->driveCar(detect->getLeftLane(), detect->getRightLane(), 40, 0);
         // cv::imshow("View", cv_ptr->image);
     }
     catch (cv_bridge::Exception &e)

@@ -36,6 +36,10 @@ vector<Point> DetectLane::getLeftLane()
     return leftLane;
 }
 
+Mat DetectLane::getImgThresholded() {
+    return imgThresholded;
+}
+
 vector<Point> DetectLane::getRightLane()
 {
     return rightLane;

@@ -50,10 +50,16 @@ void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right,
             error = errorAngle((left[i] + right[i]) / 2);
         }
         else if (left[i] != DetectLane::null) {
-            error = errorAngle(left[i] + Point(laneWidth / 2, 0));
+            error = errorAngle(left[i] + Point(laneWidth / 2.5, 0));
+            velocity /= 2.5;
         }
         else if (right[i] != DetectLane::null) {
-            error = errorAngle(right[i] - Point(laneWidth / 2, 0));
+            error = errorAngle(right[i] - Point(laneWidth / 1.5, 0));
+            velocity /= 2.5;
+        }
+        else {
+            error = errorAngle(Point(laneWidth * 1.0 / 2.0, 0));
+            velocity /= 2.0;
         }
     }
 
@@ -63,6 +69,12 @@ void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right,
     angle.data = error;
     speed.data = velocity;
 
+    currVelocity = velocity;
+
     steer_publisher.publish(angle);
     speed_publisher.publish(speed);
+}
+
+float CarControl::getVelocity() {
+    return currVelocity;
 }

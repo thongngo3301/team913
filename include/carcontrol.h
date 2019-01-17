@@ -21,6 +21,7 @@ class CarControl
     CarControl();
     ~CarControl();
     void driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, int sign);
+    float getVelocity();
 
   private:
     float errorAngle(const Point &dst);
@@ -36,6 +37,7 @@ class CarControl
 
     float minVelocity = 10;
     float maxVelocity = 100;
+    float currVelocity;
 
     float preError;
 
