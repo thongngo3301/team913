@@ -21,6 +21,7 @@ class DetectLane
 
     void update(Mat &src);
     Mat getImgThresholded();
+    int findTrafficSign(const Mat &src);
 
     vector<Point> getLeftLane();
     vector<Point> getRightLane();
@@ -37,6 +38,8 @@ class DetectLane
 
   private:
     Mat preProcess(const Mat &src);
+
+    // bool cmp(vector<Point> a, vector<Point> b);
 
     Mat morphological(const Mat &imgHSV);
     Mat birdViewTranform(const Mat &source);

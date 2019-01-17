@@ -39,10 +39,13 @@ void imageCallback(const sensor_msgs::ImageConstPtr &msg)
         detect->update(cv_ptr->image);
         // ========== LAY ANH O DAY ==========
         // if (idx % 30 == 0) {
-        //     string name = "/home/thongnd/Desktop/images/3/" + to_string(idx/30) + ".jpg";
+        //     string name = "/home/thongnd/Desktop/images/1/" + to_string(idx/30) + ".jpg";
         //     cout << name << endl;
-        //     // imwrite(name, cv_ptr->image);
-        //     imwrite(name, detect->getImgThresholded());
+        //     vector<int> compression_params;
+        //     compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+        //     compression_params.push_back(0);
+        //     imwrite(name, cv_ptr->image, compression_params);
+        //     // imwrite(name, detect->getImgThresholded());
         // }
         // idx++;
         car->driveCar(detect->getLeftLane(), detect->getRightLane(), 40, 0);

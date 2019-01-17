@@ -116,6 +116,8 @@ void DetectLane::update(Mat &src)
 {
     Mat img = preProcess(src);
 
+    findTrafficSign(src);
+
     vector<Mat> layers1 = splitLayer(img);
     vector<vector<Point>> points1 = centerRoadSide(layers1);
     // vector<Mat> layers2 = splitLayer(img, HORIZONTAL);
@@ -170,6 +172,9 @@ Mat DetectLane::preProcess(const Mat &src)
     Mat imgThresholdedShadow = laneInShadow(src);
 
     Mat fullImgThresholded;
+
+    // imshow("normal threshold", imgThresholded);
+    // imshow("shadow threshold", imgThresholdedShadow);
 
     // bitwise_or to to get lanes in normal situation and shadow situation
     bitwise_or(imgThresholded, imgThresholdedShadow, fullImgThresholded);
@@ -477,4 +482,33 @@ Mat DetectLane::birdViewTranform(const Mat &src)
     imshow("bird view", dst);
 
     return dst;
+}
+
+int DetectLane::findTrafficSign(const Mat &src) {
+    const int MIN_CMP_VAL = 30;
+    Mat imgHSV, dst, trafficSignImgThresholded;
+
+    cvtColor(src, imgHSV, COLOR_BGR2HSV);
+
+    inRange(imgHSV,
+            Scalar(85, 100, 100),
+            Scalar(135, 255, 255),
+            trafficSignImgThresholded);
+
+    imshow("traffic sign thresholded", trafficSignImgThresholded);
+
+    std::vector<std::vector<Point>> cnts;
+    std::vector<Point> tmp;
+    findContours(trafficSignImgThresholded, cnts, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+    int cntsN = cnts.size();
+
+    if (cntsN > 0) {
+        vector<Point> sign_elem = *max_element(cnts.begin(), cnts.end(), [](vector<Point> a, vector<Point> b) {
+            return a.size() > b.size();    
+        });
+        if (sign_elem.size() > MIN_CMP_VAL) {
+            cout << sign_elem.size() << endl;
+            Rect boundingRect = boundingRect(Mat(sign_elem));
+        }   
+    }
 }
