@@ -13,6 +13,15 @@
 using namespace std;
 using namespace cv;
 
+enum SIGN_TYPE {
+  NONE  = -1,
+  RIGHT = 0,
+  LEFT  = 1
+};
+
+const int MIN_CMP_VAL = 30;
+const uchar COLOR_THRESHOLD = 240;
+
 class DetectLane
 {
   public:
@@ -21,7 +30,7 @@ class DetectLane
 
     void update(Mat &src);
     Mat getImgThresholded();
-    int findTrafficSign(const Mat &src);
+    SIGN_TYPE findTrafficSign(const Mat &src);
 
     vector<Point> getLeftLane();
     vector<Point> getRightLane();

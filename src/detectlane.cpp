@@ -484,8 +484,8 @@ Mat DetectLane::birdViewTranform(const Mat &src)
     return dst;
 }
 
-int DetectLane::findTrafficSign(const Mat &src) {
-    const int MIN_CMP_VAL = 30;
+SIGN_TYPE DetectLane::findTrafficSign(const Mat &src) {
+    SIGN_TYPE type = NONE;
     Mat imgHSV, dst, trafficSignImgThresholded;
 
     cvtColor(src, imgHSV, COLOR_BGR2HSV);
@@ -498,7 +498,6 @@ int DetectLane::findTrafficSign(const Mat &src) {
     imshow("traffic sign thresholded", trafficSignImgThresholded);
 
     std::vector<std::vector<Point>> cnts;
-    std::vector<Point> tmp;
     findContours(trafficSignImgThresholded, cnts, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
     int cntsN = cnts.size();
 
@@ -506,9 +505,19 @@ int DetectLane::findTrafficSign(const Mat &src) {
         vector<Point> sign_elem = *max_element(cnts.begin(), cnts.end(), [](vector<Point> a, vector<Point> b) {
             return a.size() > b.size();    
         });
+        // 7 - 12 frame
         if (sign_elem.size() > MIN_CMP_VAL) {
-            cout << sign_elem.size() << endl;
-            Rect boundingRect = boundingRect(Mat(sign_elem));
-        }   
+            Rect bounding_box = boundingRect(Mat(sign_elem));
+            unsigned long p_counter = 0;
+            unsigned long h = bounding_box.height >> 1, w = bounding_box.width >> 1;
+            for (int p_i = 0; p_i < h; ++p_i)
+            for (int p_j = 0; p_j < w; ++p_j) {
+                uchar pixel = trafficSignImgThresholded.at<uchar>(bounding_box.x + p_j, bounding_box.y + p_i);
+                p_counter += (pixel > COLOR_THRESHOLD);
+            }
+            double pr = (double)p_counter / (w * h);
+            type = SIGN_TYPE(pr > 0.5);
+        }
     }
+    return type;
 }
