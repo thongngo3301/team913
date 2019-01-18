@@ -19,7 +19,7 @@ enum SIGN_TYPE {
   RIGHT = 1
 };
 
-const int MIN_CMP_VAL = 30;
+const int MIN_CMP_VAL = 15;
 const uchar COLOR_THRESHOLD = 240;
 
 class DetectLane
@@ -30,7 +30,7 @@ class DetectLane
 
     void update(Mat &src);
     Mat getImgThresholded();
-    SIGN_TYPE findTrafficSign(const Mat &src);
+    SIGN_TYPE getTrafficSign(const Mat &src);
 
     vector<Point> getLeftLane();
     vector<Point> getRightLane();

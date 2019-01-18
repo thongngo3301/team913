@@ -20,7 +20,7 @@ class CarControl
   public:
     CarControl();
     ~CarControl();
-    void driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, int sign);
+    void driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, SIGN_TYPE sign);
     float getVelocity();
 
   private:
@@ -48,6 +48,9 @@ class CarControl
     int t_kP;
     int t_kI;
     int t_kD;
+
+    int prevFrCounter;
+    int forwFrCounter;
 };
 
 #endif

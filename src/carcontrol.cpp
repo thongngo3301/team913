@@ -2,6 +2,7 @@
 
 CarControl::CarControl()
 {
+    prevFrCounter = 0;
     carPos.x = 120;
     carPos.y = 300;
     steer_publisher = node_obj1.advertise<std_msgs::Float32>("team913_steerAngle", 10);
@@ -24,11 +25,8 @@ float CarControl::errorAngle(const Point &dst)
     return atan(dx / dy) * 180 / pi;
 }
 
-void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, int sign)
+void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, SIGN_TYPE sign)
 {
-    const int LEFT = 1;
-    const int RIGHT = 2;
-
     int i = left.size() - 11;
     float error = preError;
     while (left[i] == DetectLane::null && right[i] == DetectLane::null) {
@@ -36,26 +34,46 @@ void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right,
         if (i < 0)
             return;
     }
-    if (sign) {
-        switch (sign) {
-            case LEFT:
-                break;
-            case RIGHT:
-                velocity = 10;
-                error = 2;
-                break;
+    if (sign != NONE) {
+        prevFrCounter++;
+        cout << "prev fr counter: " << prevFrCounter << endl;
+        if (prevFrCounter == 10) {
+            // velocity /= 2.0;
+            switch (sign) {
+                case LEFT:
+                    error = errorAngle(left[i] + Point(laneWidth / 2.0, 0));
+                    // error = errorAngle(right[i] - Point(laneWidth / 2.0, 0));
+                    break;
+                case RIGHT:
+                    // error = errorAngle(left[i] + Point(laneWidth / 2.0, 0));
+                    error = errorAngle(right[i] - Point(laneWidth / 2.0, 0));
+                    break;
+            }
         }
-    } else {
+        else if (prevFrCounter == 30) {
+            prevFrCounter = 0;
+            velocity /= 2.0;
+            switch (sign) {
+                case LEFT:
+                    error = -30;
+                    break;
+                case RIGHT:
+                    error = 30;
+                    break;
+            }
+        }
+    }
+    else {
         if (left[i] != DetectLane::null && right[i] != DetectLane::null) {
             error = errorAngle((left[i] + right[i]) / 2);
         }
         else if (left[i] != DetectLane::null) {
-            error = errorAngle(left[i] + Point(laneWidth / 2.5, 0));
-            velocity /= 2.5;
+            error = errorAngle(left[i] + Point(laneWidth / 2.0, 0));
+            velocity /= 2.0;
         }
         else if (right[i] != DetectLane::null) {
-            error = errorAngle(right[i] - Point(laneWidth / 1.5, 0));
-            velocity /= 2.5;
+            error = errorAngle(right[i] - Point(laneWidth / 2.0, 0));
+            velocity /= 2.0;
         }
         else {
             error = errorAngle(Point(laneWidth * 1.0 / 2.0, 0));

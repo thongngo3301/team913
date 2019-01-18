@@ -116,7 +116,7 @@ void DetectLane::update(Mat &src)
 {
     Mat img = preProcess(src);
 
-    findTrafficSign(src);
+    // getTrafficSign(src);
 
     vector<Mat> layers1 = splitLayer(img);
     vector<vector<Point>> points1 = centerRoadSide(layers1);
@@ -484,7 +484,8 @@ Mat DetectLane::birdViewTranform(const Mat &src)
     return dst;
 }
 
-SIGN_TYPE DetectLane::findTrafficSign(const Mat &src) {
+SIGN_TYPE DetectLane::getTrafficSign(const Mat &src)
+{
     SIGN_TYPE type = NONE;
     Mat imgHSV, dst, trafficSignImgThresholded;
 
@@ -501,22 +502,31 @@ SIGN_TYPE DetectLane::findTrafficSign(const Mat &src) {
     findContours(trafficSignImgThresholded, cnts, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
     int cntsN = cnts.size();
 
-    if (cntsN > 0) {
+    if (cntsN > 0)
+    {
         vector<Point> sign_elem = *max_element(cnts.begin(), cnts.end(), [](vector<Point> a, vector<Point> b) {
-            return a.size() > b.size();    
+            return a.size() > b.size();
         });
         // 7 - 12 frame
-        if (sign_elem.size() > MIN_CMP_VAL) {
+        if (sign_elem.size() > MIN_CMP_VAL)
+        {
             Rect bounding_box = boundingRect(Mat(sign_elem));
             unsigned long p_counter = 0;
             unsigned long h = bounding_box.height >> 1, w = bounding_box.width >> 1;
-            for (int p_i = 0; p_i < h; ++p_i)
-            for (int p_j = 0; p_j < w; ++p_j) {
-                uchar pixel = trafficSignImgThresholded.at<uchar>(bounding_box.x + p_j, bounding_box.y + p_i);
-                p_counter += (pixel > COLOR_THRESHOLD);
+            for (int p_i = h; p_i < bounding_box.height; ++p_i)
+            {
+                for (int p_j = 0; p_j < w; ++p_j)
+                {
+                    // uchar pixel = trafficSignImgThresholded.at<uchar>(bounding_box.x + p_j, bounding_box.y + p_i);
+                    uchar pixel = trafficSignImgThresholded.at<uchar>(bounding_box.y + p_i, bounding_box.x + p_j);
+                    p_counter += (pixel > COLOR_THRESHOLD);
+                }
             }
             double pr = (double)p_counter / (w * h);
-            type = (pr > 0.5) ? LEFT : RIGHT;
+            cout << p_counter << " " << pr << endl;
+            if (pr > 0.8) type = LEFT;
+            else if (pr < 0.68) type = RIGHT;
+            else type = NONE;
         }
     }
     return type;
