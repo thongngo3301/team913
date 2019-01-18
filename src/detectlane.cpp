@@ -516,7 +516,7 @@ SIGN_TYPE DetectLane::findTrafficSign(const Mat &src) {
                 p_counter += (pixel > COLOR_THRESHOLD);
             }
             double pr = (double)p_counter / (w * h);
-            type = SIGN_TYPE(pr > 0.5);
+            type = (pr > 0.5) ? LEFT : RIGHT;
         }
     }
     return type;

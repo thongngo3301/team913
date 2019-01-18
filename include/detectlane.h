@@ -14,9 +14,9 @@ using namespace std;
 using namespace cv;
 
 enum SIGN_TYPE {
-  NONE  = -1,
-  RIGHT = 0,
-  LEFT  = 1
+  LEFT  = -1,
+  NONE  = 0,
+  RIGHT = 1
 };
 
 const int MIN_CMP_VAL = 30;
