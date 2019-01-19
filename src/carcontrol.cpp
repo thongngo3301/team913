@@ -3,6 +3,7 @@
 CarControl::CarControl()
 {
     prevFrCounter = 0;
+    frSum = 0;
     carPos.x = 120;
     carPos.y = 300;
     steer_publisher = node_obj1.advertise<std_msgs::Float32>("team913_steerAngle", 10);
@@ -27,6 +28,9 @@ float CarControl::errorAngle(const Point &dst)
 
 void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, SIGN_TYPE sign)
 {
+    const int TURN_LEFT_THRESHOLD = -20;
+    const int TURN_RIGHT_THRESHOLD = 20;
+    const int QUEUE_LIMIT = 30;
     int i = left.size() - 11;
     float error = preError;
     while (left[i] == DetectLane::null && right[i] == DetectLane::null) {
@@ -34,6 +38,39 @@ void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right,
         if (i < 0)
             return;
     }
+    if (frQueue.size() == QUEUE_LIMIT) {
+        frQueue.pop();
+    }
+    switch (sign) {
+        case LEFT:
+            frQueue.push(-1);
+            break;
+        case RIGHT:
+            frQueue.push(1);
+            break;
+        default:
+            frQueue.push(0);
+            break;
+    }
+
+    frSum = calcFrSum(frQueue);
+    cout << "fr sum: " << frSum << endl;
+
+    if (sign != NONE) {
+        velocity /= 2.0;
+        if (frSum <= TURN_LEFT_THRESHOLD) {
+            error = -30;
+        } else {
+            error = errorAngle(left[i] + Point(laneWidth / 2.0, 0));
+        }
+        if (frSum >= TURN_RIGHT_THRESHOLD) {
+            error = 30;
+        } else {
+            error = errorAngle(right[i] - Point(laneWidth / 2.0, 0));
+        }
+    }
+
+/*
     if (sign != NONE) {
         prevFrCounter++;
         cout << "prev fr counter: " << prevFrCounter << endl;
@@ -63,6 +100,7 @@ void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right,
             }
         }
     }
+*/
     else {
         if (left[i] != DetectLane::null && right[i] != DetectLane::null) {
             error = errorAngle((left[i] + right[i]) / 2);
@@ -95,4 +133,13 @@ void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right,
 
 float CarControl::getVelocity() {
     return currVelocity;
+}
+
+int CarControl::calcFrSum(queue<int> frQueue) {
+    int sum = 0;
+    while (!frQueue.empty()) {
+        sum += frQueue.front();
+        frQueue.pop();
+    }
+    return sum;
 }

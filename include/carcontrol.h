@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <math.h>
+#include <queue>
 
 #include "detectlane.h"
 
@@ -25,6 +26,8 @@ class CarControl
 
   private:
     float errorAngle(const Point &dst);
+    int calcFrSum(queue<int> frQueue);
+
     ros::NodeHandle node_obj1;
     ros::NodeHandle node_obj2;
 
@@ -49,8 +52,10 @@ class CarControl
     int t_kI;
     int t_kD;
 
+    queue<int> frQueue;
+
     int prevFrCounter;
-    int forwFrCounter;
+    int frSum;
 };
 
 #endif

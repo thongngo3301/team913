@@ -523,7 +523,7 @@ SIGN_TYPE DetectLane::getTrafficSign(const Mat &src)
                 }
             }
             double pr = (double)p_counter / (w * h);
-            cout << p_counter << " " << pr << endl;
+            // cout << p_counter << " " << pr << endl;
             if (pr > 0.8) type = LEFT;
             else if (pr < 0.68) type = RIGHT;
             else type = NONE;

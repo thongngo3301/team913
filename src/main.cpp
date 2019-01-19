@@ -51,9 +51,9 @@ void imageCallback(const sensor_msgs::ImageConstPtr &msg)
         SIGN_TYPE sign = NONE;
         if (car->getVelocity() > 0) {
             sign = detect->getTrafficSign(cv_ptr->image);
-            if (sign != NONE) {
-                cout << "sign: " << sign << endl;
-            }
+            // if (sign != NONE) {
+            //     cout << "sign: " << sign << endl;
+            // }
         }
         car->driveCar(detect->getLeftLane(), detect->getRightLane(), 45, sign);
         // cv::imshow("View", cv_ptr->image);
