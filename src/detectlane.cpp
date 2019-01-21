@@ -492,8 +492,10 @@ SIGN_TYPE DetectLane::getTrafficSign(const Mat &src)
     cvtColor(src, imgHSV, COLOR_BGR2HSV);
 
     inRange(imgHSV,
+            // Scalar(85, 100, 100),
+            // Scalar(135, 255, 255),
             Scalar(85, 100, 100),
-            Scalar(135, 255, 255),
+            Scalar(115, 255, 255),
             trafficSignImgThresholded);
 
     imshow("traffic sign thresholded", trafficSignImgThresholded);
@@ -511,22 +513,41 @@ SIGN_TYPE DetectLane::getTrafficSign(const Mat &src)
         if (sign_elem.size() > MIN_CMP_VAL)
         {
             Rect bounding_box = boundingRect(Mat(sign_elem));
-            unsigned long p_counter = 0;
+            unsigned long p_counter_left = 0;
+            unsigned long p_counter_right = 0;
             unsigned long h = bounding_box.height >> 1, w = bounding_box.width >> 1;
-            for (int p_i = h; p_i < bounding_box.height; ++p_i)
+            // for (int p_i = h; p_i < bounding_box.height; ++p_i)
+            // {
+            //     for (int p_j = 0; p_j < w; ++p_j)
+            //     {
+            //         // uchar pixel = trafficSignImgThresholded.at<uchar>(bounding_box.x + p_j, bounding_box.y + p_i);
+            //         uchar pixel = trafficSignImgThresholded.at<uchar>(bounding_box.y + p_i, bounding_box.x + p_j);
+            //         p_counter += (pixel > COLOR_THRESHOLD);
+            //     }
+            // }
+            for (int p_i = 0; p_i < h; p_i++)
             {
-                for (int p_j = 0; p_j < w; ++p_j)
+                for (int p_j = 0; p_j < bounding_box.width; p_j++)
                 {
-                    // uchar pixel = trafficSignImgThresholded.at<uchar>(bounding_box.x + p_j, bounding_box.y + p_i);
+
                     uchar pixel = trafficSignImgThresholded.at<uchar>(bounding_box.y + p_i, bounding_box.x + p_j);
-                    p_counter += (pixel > COLOR_THRESHOLD);
+                    if (p_j < w)
+                    {
+                        p_counter_left += (pixel > COLOR_THRESHOLD);
+                    }
+                    else
+                    {
+                        p_counter_right += (pixel > COLOR_THRESHOLD);
+                    }
                 }
             }
-            double pr = (double)p_counter / (w * h);
-            // cout << p_counter << " " << pr << endl;
-            if (pr > 0.8) type = LEFT;
-            else if (pr < 0.68) type = RIGHT;
+            if (p_counter_left < p_counter_right) type = LEFT;
+            else if (p_counter_left > p_counter_right) type = RIGHT;
             else type = NONE;
+            // double pr = (double)p_counter / (w * h);
+            // if (pr > 0.8) type = LEFT;
+            // else if (pr < 0.68) type = RIGHT;
+            // else type = NONE;
         }
     }
     return type;

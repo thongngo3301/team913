@@ -19,7 +19,7 @@ enum SIGN_TYPE {
   RIGHT = 1
 };
 
-const int MIN_CMP_VAL = 15;
+const int MIN_CMP_VAL = 25;
 const uchar COLOR_THRESHOLD = 240;
 
 class DetectLane

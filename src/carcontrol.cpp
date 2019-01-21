@@ -28,8 +28,8 @@ float CarControl::errorAngle(const Point &dst)
 
 void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, SIGN_TYPE sign)
 {
-    const int TURN_LEFT_THRESHOLD = -20;
-    const int TURN_RIGHT_THRESHOLD = 20;
+    const int TURN_LEFT_THRESHOLD = -15;
+    const int TURN_RIGHT_THRESHOLD = 15;
     const int QUEUE_LIMIT = 30;
     int i = left.size() - 11;
     float error = preError;
@@ -54,19 +54,21 @@ void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right,
     }
 
     frSum = calcFrSum(frQueue);
-    cout << "fr sum: " << frSum << endl;
+    // cout << "fr sum: " << frSum << endl;
 
     if (sign != NONE) {
-        velocity /= 2.0;
-        if (frSum <= TURN_LEFT_THRESHOLD) {
-            error = -30;
-        } else {
-            error = errorAngle(left[i] + Point(laneWidth / 2.0, 0));
-        }
-        if (frSum >= TURN_RIGHT_THRESHOLD) {
-            error = 30;
-        } else {
-            error = errorAngle(right[i] - Point(laneWidth / 2.0, 0));
+        if (frSum != 0) {
+            velocity /= 2.0;
+            if (frSum == TURN_LEFT_THRESHOLD) {
+                error = -30;
+            } else if (frSum > TURN_LEFT_THRESHOLD && frSum <= TURN_LEFT_THRESHOLD / 2) {
+                error = errorAngle(left[i] + Point(laneWidth / 4.0, 0));
+            }
+            if (frSum == TURN_RIGHT_THRESHOLD) {
+                error = 30;
+            } else if (frSum >= TURN_RIGHT_THRESHOLD / 2 && frSum < TURN_RIGHT_THRESHOLD) {
+                error = errorAngle(right[i] - Point(laneWidth / 4.0, 0));
+            }
         }
     }
 
