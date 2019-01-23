@@ -28,8 +28,8 @@ float CarControl::errorAngle(const Point &dst)
 
 void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, SIGN_TYPE sign)
 {
-    const int TURN_LEFT_THRESHOLD = -15;
-    const int TURN_RIGHT_THRESHOLD = 15;
+    const int TURN_LEFT_THRESHOLD = -12;
+    const int TURN_RIGHT_THRESHOLD = 12;
     const int QUEUE_LIMIT = 30;
     int i = left.size() - 11;
     float error = preError;
@@ -61,13 +61,45 @@ void CarControl::driveCar(const vector<Point> &left, const vector<Point> &right,
             velocity /= 2.0;
             if (frSum == TURN_LEFT_THRESHOLD) {
                 error = -30;
+            } else if (frSum == TURN_LEFT_THRESHOLD - 5) {
+                error = -30;
+                frSum = 0;
             } else if (frSum > TURN_LEFT_THRESHOLD && frSum <= TURN_LEFT_THRESHOLD / 2) {
                 error = errorAngle(left[i] + Point(laneWidth / 4.0, 0));
+            } else {
+                if (left[i] != DetectLane::null && right[i] != DetectLane::null) {
+                    error = errorAngle((left[i] + right[i]) / 2);
+                }
+                else if (left[i] != DetectLane::null) {
+                    error = errorAngle(left[i] + Point(laneWidth / 2.0, 0));
+                }
+                else if (right[i] != DetectLane::null) {
+                    error = errorAngle(right[i] - Point(laneWidth / 2.0, 0));
+                }
+                else {
+                    error = errorAngle(Point(laneWidth * 1.0 / 2.0, 0));
+                }
             }
             if (frSum == TURN_RIGHT_THRESHOLD) {
                 error = 30;
+            } else if (frSum == TURN_RIGHT_THRESHOLD + 5) {
+                error = 30;
+                frSum = 0;
             } else if (frSum >= TURN_RIGHT_THRESHOLD / 2 && frSum < TURN_RIGHT_THRESHOLD) {
                 error = errorAngle(right[i] - Point(laneWidth / 4.0, 0));
+            } else {
+                if (left[i] != DetectLane::null && right[i] != DetectLane::null) {
+                    error = errorAngle((left[i] + right[i]) / 2);
+                }
+                else if (left[i] != DetectLane::null) {
+                    error = errorAngle(left[i] + Point(laneWidth / 2.0, 0));
+                }
+                else if (right[i] != DetectLane::null) {
+                    error = errorAngle(right[i] - Point(laneWidth / 2.0, 0));
+                }
+                else {
+                    error = errorAngle(Point(laneWidth * 1.0 / 2.0, 0));
+                }
             }
         }
     }
