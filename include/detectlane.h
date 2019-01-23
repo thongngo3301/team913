@@ -31,6 +31,8 @@ class DetectLane
     void update(Mat &src);
     Mat getImgThresholded();
     SIGN_TYPE getTrafficSign(const Mat &src);
+    float getSignProportion();
+    bool isSign(Mat img, vector<Point> elem);
 
     vector<Point> getLeftLane();
     vector<Point> getRightLane();
@@ -69,6 +71,8 @@ class DetectLane
 
     int skyLine = 120;
     int shadowParam = 40;
+
+    float proportion = 0;
 
     vector<Point> leftLane, rightLane;
 };

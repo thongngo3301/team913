@@ -21,8 +21,10 @@ class CarControl
   public:
     CarControl();
     ~CarControl();
-    void driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, SIGN_TYPE sign);
+    void driveCar(const vector<Point> &left, const vector<Point> &right, float velocity, SIGN_TYPE sign, float proportion);
     float getVelocity();
+
+    int n = 0;
 
   private:
     float errorAngle(const Point &dst);
@@ -56,6 +58,9 @@ class CarControl
 
     int prevFrCounter;
     int frSum;
+
+    SIGN_TYPE true_sign = NONE;
+
 };
 
 #endif

@@ -17,8 +17,8 @@ Mat imgThresholded;
 
 DetectLane::DetectLane()
 {
-    cvCreateTrackbar("LowH", "Threshold", &minThreshold[0], 179);
-    cvCreateTrackbar("HighH", "Threshold", &maxThreshold[0], 179);
+    cvCreateTrackbar("LowH", "Threshold", &minThreshold[0], 240);
+    cvCreateTrackbar("HighH", "Threshold", &maxThreshold[0], 240);
 
     cvCreateTrackbar("LowS", "Threshold", &minThreshold[1], 255);
     cvCreateTrackbar("HighS", "Threshold", &maxThreshold[1], 255);
@@ -163,7 +163,7 @@ Mat DetectLane::preProcess(const Mat &src)
 
     cvtColor(src, imgHSV, COLOR_BGR2HSV);
 
-    imshow("hsv", imgHSV);
+    // imshow("hsv", imgHSV);
 
     inRange(imgHSV, Scalar(minThreshold[0], minThreshold[1], minThreshold[2]),
             Scalar(maxThreshold[0], maxThreshold[1], maxThreshold[2]),
@@ -495,7 +495,7 @@ SIGN_TYPE DetectLane::getTrafficSign(const Mat &src)
             // Scalar(85, 100, 100),
             // Scalar(135, 255, 255),
             Scalar(85, 100, 100),
-            Scalar(115, 255, 255),
+            Scalar(105, 255, 255),
             trafficSignImgThresholded);
 
     imshow("traffic sign thresholded", trafficSignImgThresholded);
@@ -510,26 +510,31 @@ SIGN_TYPE DetectLane::getTrafficSign(const Mat &src)
             return a.size() > b.size();
         });
         // 7 - 12 frame
+        // vector<Point> sign_elem;
+        // for (int idx = 0; idx < cntsN; idx++)
+        // {
+        //     if (isSign(trafficSignImgThresholded, cnts[idx])) {
+        //         sign_elem = cnts[idx];
+        //     }
+        // }
+        // vector<Point> sign_elem = cnts[idx];
+        if (sign_elem.empty()) return NONE;
         if (sign_elem.size() > MIN_CMP_VAL)
         {
             Rect bounding_box = boundingRect(Mat(sign_elem));
             unsigned long p_counter_left = 0;
             unsigned long p_counter_right = 0;
-            unsigned long h = bounding_box.height >> 1, w = bounding_box.width >> 1;
-            // for (int p_i = h; p_i < bounding_box.height; ++p_i)
-            // {
-            //     for (int p_j = 0; p_j < w; ++p_j)
-            //     {
-            //         // uchar pixel = trafficSignImgThresholded.at<uchar>(bounding_box.x + p_j, bounding_box.y + p_i);
-            //         uchar pixel = trafficSignImgThresholded.at<uchar>(bounding_box.y + p_i, bounding_box.x + p_j);
-            //         p_counter += (pixel > COLOR_THRESHOLD);
-            //     }
+
+            // if (bounding_box.height * 1.0 / bounding_box.width > 1.1 || bounding_box.width * 1.0 / bounding_box.height > 1.1) {
+            //     return NONE;
             // }
+
+            unsigned long h = bounding_box.height >> 1, w = bounding_box.width >> 1;
+            proportion = (bounding_box.height * bounding_box.width * 1.0) / (src.rows * src.cols);
             for (int p_i = 0; p_i < h; p_i++)
             {
                 for (int p_j = 0; p_j < bounding_box.width; p_j++)
                 {
-
                     uchar pixel = trafficSignImgThresholded.at<uchar>(bounding_box.y + p_i, bounding_box.x + p_j);
                     if (p_j < w)
                     {
@@ -544,11 +549,36 @@ SIGN_TYPE DetectLane::getTrafficSign(const Mat &src)
             if (p_counter_left < p_counter_right) type = LEFT;
             else if (p_counter_left > p_counter_right) type = RIGHT;
             else type = NONE;
-            // double pr = (double)p_counter / (w * h);
-            // if (pr > 0.8) type = LEFT;
-            // else if (pr < 0.68) type = RIGHT;
-            // else type = NONE;
         }
     }
     return type;
+}
+
+float DetectLane::getSignProportion()
+{
+    return proportion;
+}
+
+bool DetectLane::isSign(Mat img, vector<Point> elem)
+{
+    Rect bounding_box = boundingRect(Mat(elem));
+    if (bounding_box.height * 1.0 / bounding_box.width > 1.1 || bounding_box.width * 1.0 / bounding_box.height > 1.1) return false;
+    float rate = 0.2;
+    int h_size = ceil(bounding_box.height * rate);
+    int w_size = ceil(bounding_box.width * rate);
+    for (int y = 0; y < h_size; y++) {
+        for (int x = 0; x < w_size; x++) {
+            if (
+                // TL
+                img.at<uchar>(bounding_box.y + y, bounding_box.x + x) < 5 ||
+                // TR
+                img.at<uchar>(bounding_box.y + (bounding_box.height - h_size + y + 1), bounding_box.x + x) < 5 ||
+                // BL
+                img.at<uchar>(bounding_box.y, bounding_box.x + (bounding_box.width - w_size + x + 1)) < 5 ||
+                // BR
+                img.at<uchar>(bounding_box.y + (bounding_box.height - h_size + y + 1), bounding_box.x + (bounding_box.width - w_size + x + 1)) < 5
+            ) return false;
+        }
+    }
+    return true;
 }

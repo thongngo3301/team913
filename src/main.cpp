@@ -49,13 +49,15 @@ void imageCallback(const sensor_msgs::ImageConstPtr &msg)
         // }
         // idx++;
         SIGN_TYPE sign = NONE;
+        float proportion = 0;
         if (car->getVelocity() > 0) {
             sign = detect->getTrafficSign(cv_ptr->image);
             if (sign != NONE) {
                 cout << "sign: " << sign << endl;
             }
+            proportion = detect->getSignProportion();
         }
-        car->driveCar(detect->getLeftLane(), detect->getRightLane(), 45, sign);
+        car->driveCar(detect->getLeftLane(), detect->getRightLane(), 45, sign, proportion);
         // cv::imshow("View", cv_ptr->image);
     }
     catch (cv_bridge::Exception &e)
